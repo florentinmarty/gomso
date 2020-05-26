@@ -1,0 +1,174 @@
+<html lang = "en">
+
+<head>
+  <meta charset = "UTF-8" />
+  <title>Gemeinde Goms</title>
+
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+  integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+  crossorigin=""/>
+  <link rel="stylesheet" href="style.css">
+
+  <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
+  integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
+  crossorigin=""></script>
+
+  <script src="src/leaflet-timeline-slider.js"></script>
+
+<script src="data/eventdata.js"></script>
+
+<style>
+.mapid {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  background: #e5ddbd;
+  z-index: 10;
+}
+</style>
+
+
+
+</head>
+<body>
+  <div id="entireSite"  style="height: 100%">
+    <div id="mapid" style="height: 100%; width: 100%; left: 0; top: 0; background: #e5ddbd;   z-index: 10;">
+  </div>
+</div>
+
+
+  <script type="text/javascript">
+
+
+var mymap = L.map('mapid', {
+  crs: L.CRS.Simple
+});
+
+var bounds = [[0,0], [100,160]];
+var image = L.imageOverlay('img/maps/mapGomso.jpeg', bounds).addTo(mymap);
+mymap.fitBounds(bounds).setZoom(4);
+
+var golumPopup = "<a href='https://vimeo.com/162455052' target='_blank'> <img width='200' src='maps/images/edogan.jpg'> </a> <br> weitere infos auf  <a href='https://www.instagram.com/instagoms' target='_blank'> insta</a> ";
+var frodoPopup = "Frodo ist nervös  <img width='200' src='maps/images/se.jpg'>  <iframe frameborder='0' scrolling='no' marginheight='0' marginwidth='0'width='500' height='300' type='text/html' src='https://www.youtube.com/embed/c24-0Amwyik?autoplay=0&fs=0&iv_load_policy=3&showinfo=0&rel=0&cc_load_policy=0&start=0&end=0'></iframe>";
+
+
+var frodoOptions =
+        {
+        'maxWidth': '500',
+        'className' : 'custompopup'
+        }
+
+
+getDataAddMarkers = function( {label, value, map, exclamation} ) {
+  map.eachLayer(function (layer) {
+    if (layer instanceof L.Marker) {
+      map.removeLayer(layer);
+    }
+  });
+
+ var clickedPhase = timeitems.indexOf(label) + 1;
+ console.log(clickedPhase);
+  filteredData = events.features.filter(function (i, n) {
+    isDisplayd = clickedPhase >= i.properties.phase && clickedPhase <= i.properties.endDisplay;
+    console.log(isDisplayd);
+    return isDisplayd;
+  });
+
+  var markerArray = [];
+  L.geoJson(filteredData, {
+    pointToLayer: function (feature, latlng) {
+                var smallIcon = new L.Icon({
+                iconSize: [100, 100],
+                iconAnchor: [13, 27],
+                popupAnchor:  [1, -24],
+                iconUrl: 'img/spatenstich.png',
+                shadowUrl: 'img/shadow.png',
+                shadowSize:   [150, 100], // size of the shadow
+                shadowAnchor: [-5, -30]  // the same for the shadow
+        });
+        return L.marker(latlng, {icon: smallIcon});
+    },
+    onEachFeature: function onEachFeature(feature, layer) {
+      //content = string.concat(`${exclamation} <br> `, golumPopup, `(${Math.round(value/6 * 100)}% done with story)`)
+      var event = feature.properties.event;
+      console.log(event);
+      var popup = L.popup().setContent(getResponsesFor(event));
+      layer.bindPopup(popup, frodoOptions);
+      markerArray.push(layer);
+    }
+  }).addTo(map);
+
+
+  var markerGroup = L.featureGroup(markerArray);
+
+};
+
+
+function getResponsesFor(event) {
+  relevantDataForEvent = blogs.messages.filter(function (i, n) {
+    console.log(event);
+    console.log(i.event)
+    return event == i.event;
+  });
+  console.log(blogs);
+console.log(relevantDataForEvent);
+var message = "";
+var arrayLength = relevantDataForEvent.length;
+for (var i = 0; i < arrayLength; i++) {
+    console.log(relevantDataForEvent[i]);
+    message += formatMessage(relevantDataForEvent[i])
+    message += "<br>";
+}
+message += "";
+  return message;
+}
+
+function formatMessage(content){
+  var character = content.character;
+  htmlContent = "<div class='message-wrapper'>"
+  htmlContent += "<div class='message-wrapper-icon'><img id='character-icons' src='img/icons/"+ character +"_icon.jpg' alt="+character+">";
+  htmlContent += "<span class='message-wrapper-icon-title'> <h3>"+character + "</h3></span></div>";
+  if (content.img) {
+      htmlContent = htmlContent + "<img class='messageImg' src='img/" + content.img+"'> <br>"
+  }
+  htmlContent += "<div class='message-wrapper-content'>";
+  if (content.title) {
+      htmlContent += "<h3>" + content.title + "</h3> ";
+  }
+  htmlContent += content.text + "<br>";
+  htmlContent +="<span id='publishDateMessage'> " + content.date +" </span><br>";
+  if (content.comments){
+    var nrComments = content.comments.length;
+
+    for (var i = 0; i < nrComments; i++) {
+      htmlContent += "<p>";
+      htmlContent += "<b>"+content.comments[i].character +": </b> \t";
+      htmlContent +=  content.comments[i].text +"<br>";
+      htmlContent +="<span id='publishDateMessage'> " + content.comments[i].date +" </span>";
+      htmlContent +=  "</p>";
+    }
+
+  }
+  htmlContent += "</div>";
+  htmlContent += "</div>";
+  return htmlContent;
+}
+var timeitems = ["Bula kommt", "Spatenstich", "Geklaute Würste", "Fussspuren", "Gomso", "Absage Bua"];
+
+L.control.timelineSlider({
+  timelineItems: timeitems,
+  changeMap: getDataAddMarkers,
+  initializeChange: true,
+  extraChangeMapParams: {exclamation: "Hello World!"} })
+  .addTo(mymap);
+  </script>
+</body>
+
+</html>

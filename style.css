@@ -1,0 +1,72 @@
+html, body {
+    height:100%;
+    width:100%;
+}
+
+.custompopup .leaflet-popup-tip,
+.custompopup .leaflet-popup-content-wrapper {
+  background-color: #dddddd;
+border-radius: 0px;
+  padding:10px;
+  height: 500px;
+  overflow: scroll;
+  overflow-x: hidden;
+
+}
+
+
+.custompopup .leaflet-popup-content {
+  margin: 3px;
+
+}
+
+.messageImg {
+  width: inherit;
+  padding: 0 px;
+
+}
+
+.message-wrapper {
+  width: inherit;
+  border: solid 1px;
+  border-color: #aaaaaa;
+  background-color: white;
+}
+
+.message-wrapper-content{
+  width: inherit;
+  margin: 10px;
+
+}
+.message-wrapper-icon{
+  width: 30%;
+  margin: 10px;
+  display:table;
+}
+.message-wrapper-icon-title{
+  display:table-cell;
+   vertical-align:middle;
+
+}
+
+#publishDateMessage {
+  color: #999999;
+  width: inherit;
+  margin-bottom: : 10px;
+}
+#commentSection{
+  margin-top: 10px;
+}
+
+#character-icons {
+  border-radius: 50%;
+  border: 1px solid;
+  border-color: #aaaaaa;
+  width: 55%;
+}
+
+.leaflet-container a.leaflet-popup-close-button{
+  top: -4px;
+right: -4px;
+color: #aaaaaa;
+}
