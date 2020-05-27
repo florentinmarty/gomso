@@ -4,10 +4,7 @@
   <meta charset = "UTF-8" />
   <title>Gemeinde Goms</title>
 
-  <script
-  src="https://code.jquery.com/jquery-3.3.1.min.js"
-  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
-  crossorigin="anonymous"></script>
+
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
   integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
@@ -17,6 +14,10 @@
   <script src="https://unpkg.com/leaflet@1.4.0/dist/leaflet.js"
   integrity="sha512-QVftwZFqvtRNi0ZyCtsznlKSWOStnDORoefr1enyq5mVL4tmKB3S/EnC3rRJcxCPavG10IcrVGSmPh6Qw5lwrg=="
   crossorigin=""></script>
+
+
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+ <script src="src/instastory.js"></script>
 
   <script src="src/leaflet-timeline-slider.js"></script>
 
@@ -44,8 +45,25 @@
 </div>
 
 
-  <script type="text/javascript">
 
+<script type="text/javascript">
+
+function Get(yourUrl){
+    var Httpreq = new XMLHttpRequest(); // a new request
+    Httpreq.open("GET",yourUrl,false);
+    Httpreq.send(null);
+    return Httpreq.responseText;
+}
+var json_obj = JSON.parse(Get("https://www.instagram.com/explore/tags/zuerich/?__a=1"));
+var instaEvent = json_obj.graphql.hashtag.edge_hashtag_to_media.edges[0].node;
+console.log(json_obj.graphql.hashtag.edge_hashtag_to_media.edges[0].node);
+
+
+let options = {
+      get: '#gomsistschoen',
+      imageSize: 480,
+      template: '<img src="{{image}}"> {{caption}}'
+  }
 
 var mymap = L.map('mapid', {
   crs: L.CRS.Simple
@@ -97,7 +115,7 @@ getDataAddMarkers = function( {label, value, map, exclamation} ) {
     },
     onEachFeature: function onEachFeature(feature, layer) {
       //content = string.concat(`${exclamation} <br> `, golumPopup, `(${Math.round(value/6 * 100)}% done with story)`)
-      var event = feature.properties.event;
+      var event = feature.properties;
       console.log(event);
       var popup = L.popup().setContent(getResponsesFor(event));
       layer.bindPopup(popup, frodoOptions);
@@ -115,28 +133,34 @@ function getResponsesFor(event) {
   relevantDataForEvent = blogs.messages.filter(function (i, n) {
     console.log(event);
     console.log(i.event)
-    return event == i.event;
+    return event.event == i.event;
   });
   console.log(blogs);
-console.log(relevantDataForEvent);
+console.log("Hallo" + event.div);
 var message = "";
 var arrayLength = relevantDataForEvent.length;
+
+
+
 for (var i = 0; i < arrayLength; i++) {
     console.log(relevantDataForEvent[i]);
-    message += formatMessage(relevantDataForEvent[i])
+    var instaEvent = json_obj.graphql.hashtag.edge_hashtag_to_media.edges[i*10].node;
+    message += formatMessage(instaEvent,relevantDataForEvent[i])
     message += "<br>";
 }
 message += "";
   return message;
 }
 
-function formatMessage(content){
+function formatMessage(insta,content){
   var character = content.character;
   htmlContent = "<div class='message-wrapper'>"
   htmlContent += "<div class='message-wrapper-icon'><img id='character-icons' src='img/icons/"+ character +"_icon.jpg' alt="+character+">";
   htmlContent += "<span class='message-wrapper-icon-title'> <h3>"+character + "</h3></span></div>";
   if (content.img) {
-      htmlContent = htmlContent + "<img class='messageImg' src='img/" + content.img+"'> <br>"
+    htmlContent = htmlContent + "<img class='messageImg' src='"+insta.thumbnail_src+"'> <br>"
+
+  //    htmlContent = htmlContent + "<img class='messageImg' src='img/" + content.img+"'> <br>"
   }
   htmlContent += "<div class='message-wrapper-content'>";
   if (content.title) {

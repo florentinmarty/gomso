@@ -99,6 +99,8 @@ events = {"type": "FeatureCollection",
     "properties": {
       "event": "Ankündigung",
       "phase": "1",
+      "hashtag": "#gomsspatenstich",
+      "div":"gomsspatenstich",
       "endDisplay":"2",
       "icon": "Spatenstich.png"
     },
